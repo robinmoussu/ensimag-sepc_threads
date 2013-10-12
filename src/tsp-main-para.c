@@ -87,7 +87,7 @@ int main (int argc, char **argv)
       }
     }
 
-    if (optind != argc-2)
+    if (optind != argc-3)
       usage(argv[0]);
 
     nb_towns = atoi(argv[optind]);
@@ -98,7 +98,7 @@ int main (int argc, char **argv)
    
     minimum = INT_MAX;
       
-    /* generér la carte et la matrice de distance */
+    /* generer la carte et la matrice de distance */
     fprintf (stderr, "ncities = %3d\n", nb_towns);
     genmap ();
 
@@ -129,8 +129,8 @@ int main (int argc, char **argv)
       print_solution_svg (sol, sol_len);
 
     perf = TIME_DIFF (t1,t2);
-    printf("<!-- # = %d seed = %ld len = %d time = %lld.%03lldms (%lld coupures) -->\n",
-	   nb_towns, myseed, sol_len,
+    printf("<!-- # = %d seed = %ld len = %d threads = %d time = %lld.%03lldms (%lld coupures) -->\n",
+	   nb_towns, myseed, sol_len, nb_threads,
 	   perf/1000000ll, perf%1000000ll, cuts);
 
     return 0 ;
