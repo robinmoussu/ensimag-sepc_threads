@@ -20,14 +20,15 @@ list(SORT LOGINS)
 # Détection de la bibliothèque de threads et de la bibliothèque de math
 #####
 find_package(Threads)
-find_library(MATH_LIBRARY NAMES m libm)
+find_library(MISC_LIBRARY NAMES m libm rt librt)
+
 
 ##
 # Si vous utilisez d'autres fichiers .c, en plus de ceux listés,
 # il faut les ajouter ici
 ##
 add_executable(ensitsp src/tsp-genmap.c  src/tsp-job.c  src/tsp-main-para.c  src/tsp-print.c  src/tsp-tsp.c)
-target_link_libraries(ensitsp ${CMAKE_THREAD_LIBS_INIT} m)
+target_link_libraries(ensitsp ${CMAKE_THREAD_LIBS_INIT} m rt)
 
 ##
 # Programme de test
