@@ -10,7 +10,7 @@ my $tsp="../build/ensitsp";
 
 my @allnthreads= (1, 2, 4, 8, 16, 32, 64);
 my @allncities= (15..18);
-my @allseeds= (12388);
+my @allseeds= (12387, 12388);
 
 if ( ! -e $fname ) {
     open my $fh, ">", $fname;
@@ -42,3 +42,5 @@ for my $nthreads ( @allnthreads ) {
 }
 
 close $fh;
+
+# Genérer les figures
