@@ -12,11 +12,11 @@ my @allnthreads= (1, 2, 4, 8, 16, 32, 64);
 my @allncities= (15..18);
 my @allseeds= (12387, 12388);
 
-die "Le fichier ${fname} existe déjà !" if (-e $fname);
+die "Le fichier '${fname}' existe déjà !" if (-e $fname);
 
-open my $fh, ">", $fname;
-print $fh "date; machine; nvilles; graine; nthreads; longueur; temps; coupures\n";
-close $fh;
+open my $fhh, ">", $fname;
+print $fhh "date; machine; nvilles; graine; nthreads; longueur; temps; coupures\n";
+close $fhh;
 
 my $machine= hostname();
 
@@ -44,4 +44,4 @@ for my $nthreads ( @allnthreads ) {
 close $fh;
 
 # Genérer les figures
-system()
+system("R --vanilla --no-save < ../mesures/visu.R");
