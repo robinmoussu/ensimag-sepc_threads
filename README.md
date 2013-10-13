@@ -12,11 +12,11 @@ programmation concurrente.
 Compilation
 ----------
 
-`cd build
-cmake ..
-make
-make test
-`
+    cd build
+    cmake ..
+    make
+    make test
+
 
 Squelette
 ----------
