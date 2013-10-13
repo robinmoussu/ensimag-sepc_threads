@@ -12,13 +12,21 @@ programmation concurrente.
 Compilation
 ----------
 
-cd build
+`cd build
 cmake ..
 make
 make test
+`
 
 Squelette
 ----------
 
 Le code du tsp est dans le répertoire src.
+
+Mesures
+----------
+
+Le script effectuant les mesures ainsi que le fichier de résultat sont
+dans le répertoire mesure.
+
 
