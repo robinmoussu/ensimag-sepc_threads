@@ -129,7 +129,7 @@ int main (int argc, char **argv)
       print_solution_svg (sol, sol_len);
 
     perf = TIME_DIFF (t1,t2);
-    printf("<!-- # = %d seed = %ld len = %d threads = %d time = %lld.%03lldms (%lld coupures) -->\n",
+    printf("<!-- # = %d seed = %ld len = %d threads = %d time = %lld.%03lld ms ( %lld coupures ) -->\n",
 	   nb_towns, myseed, sol_len, nb_threads,
 	   perf/1000000ll, perf%1000000ll, cuts);
 
