@@ -31,11 +31,14 @@ void tsp (int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t so
     }
     
     if (hops == nb_towns) {
-            assert ( len < minimum );
-            minimum = len;
-	    *sol_len = len;
-	    memcpy(sol, path, nb_towns*sizeof(int));
-            print_solution (path, len);
+	    int me = path [hops - 1];
+	    int dist = distance[me][0]; // retourner en 0
+            if ( len + dist < minimum ) {
+		    minimum = len + dist;
+		    *sol_len = len + dist;
+		    memcpy(sol, path, nb_towns*sizeof(int));
+		    print_solution (path, len+dist);
+	    }
     } else {
         int me = path [hops - 1];        
         for (int i = 0; i < nb_towns; i++) {

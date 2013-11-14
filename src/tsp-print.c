@@ -1,14 +1,21 @@
 #include <stdio.h>
 
+#include "tsp-print.h"
 #include "tsp-types.h"
 #include "tsp-genmap.h"
 
 
 /* impression tableau des distances, pour vérifier au besoin */
-void print_distance_matrix (void)
+void print_distance_matrix (bool svg)
 {
     int i, j;
-    printf ("nb_towns = %d\n", nb_towns);
+    char *entete= "";
+    char *postfix = "";
+    if (svg) {
+      entete = "<!-- ";
+      postfix = " -->";
+    }
+    printf ("%snb_towns = %d\n", entete, nb_towns);
     
     for (i = 0; i < nb_towns; i++) {
         printf ("distance [%1d]", i);
@@ -17,7 +24,7 @@ void print_distance_matrix (void)
         }
         printf (";\n\n");
     }
-    printf ("done ...\n");
+    printf ("done ...%s\n",postfix);
 }
 
 
@@ -54,4 +61,5 @@ void print_solution_svg (tsp_path_t path, int len) {
   }
   printf ("</g>\n\
 </svg>\n") ;
+  print_distance_matrix(true);
 }

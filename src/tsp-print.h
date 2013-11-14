@@ -4,8 +4,10 @@
 #include "tsp-types.h"
 #include "tsp-genmap.h"
 
+#include <stdbool.h>
+
 /* impression tableau des distances, pour vérifier au besoin */
-void print_distance_matrix (void);
+void print_distance_matrix (bool svg);
 
 /* Affichage d'une solution possible. */
 void print_solution (tsp_path_t path, int len);
