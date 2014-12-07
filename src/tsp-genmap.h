@@ -4,7 +4,7 @@
 /* nombre de villes */
 extern int nb_towns;
 typedef struct {
-  int x, y ;
+    int x, y ;
 } coor_t ;
 
 typedef coor_t *coortab_t;

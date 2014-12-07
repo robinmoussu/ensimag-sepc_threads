@@ -4,9 +4,9 @@
 
 /* Structure pour la tête de file */
 struct tsp_queue {
-   struct tsp_cell *first;
-   struct tsp_cell *last;
-   int end;
+    struct tsp_cell *first;
+    struct tsp_cell *last;
+    int end;
 };
 
 /* Initialise la file [q]. */
