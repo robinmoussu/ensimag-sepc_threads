@@ -24,20 +24,20 @@ open my $fh, ">>", $fname;
 
 for my $nthreads ( @allnthreads ) {
     for my $seed ( @allseeds ) {
-	for my $ncities ( @allncities ) {
-	    my $command="${tsp} ${ncities} ${seed} ${nthreads}";
-	    print $command."\n";
-	    open my $expe, "-|", $command;
-	    my $date = localtime();
-	    while ( my $line= <$expe> ) {
-		chomp($line);
-		my @val = split(" ",$line);
-		print $fh join(";",$date,$machine,
-				  $val[3],$val[6],$val[12],
-				  $val[9],$val[15], $val[18])."\n"; 
-	    }
-	    close($expe)
-	}
+        for my $ncities ( @allncities ) {
+            my $command="${tsp} ${ncities} ${seed} ${nthreads}";
+            print $command."\n";
+            open my $expe, "-|", $command;
+            my $date = localtime();
+            while ( my $line= <$expe> ) {
+                chomp($line);
+                my @val = split(" ",$line);
+                print $fh join(";",$date,$machine,
+                        $val[3],$val[6],$val[12],
+                        $val[9],$val[15], $val[18])."\n"; 
+            }
+            close($expe)
+        }
     }
 }
 
