@@ -1,4 +1,4 @@
-#include <assert.h>
+ï»¿#include <assert.h>
 #include <string.h>
 
 #include "tsp-types.h"
@@ -6,10 +6,10 @@
 #include "tsp-print.h"
 #include "tsp-tsp.h"
 
-/** dernier minimum trouvé */
+/** dernier minimum trouvÃ© */
 int minimum;
 
-/** résolution du problème du voyageur de commerce */
+/** rÃ©solution du problÃ¨me du voyageur de commerce */
 int present (int city, int hops, tsp_path_t path)
 {
     for (int i = 0; i < hops; i++) {

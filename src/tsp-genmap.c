@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -68,7 +68,7 @@ void genmap () {
     for (i = 0; i < nb_towns; i++) {
         cutprefix[i] = INT_MAX;
         for (j = 0; j < nb_towns; j++) {
-            /* Un peu r�aliste */
+            /* Un peu réaliste */
             dx = towns[i].x - towns[j].x;
             dy = towns[i].y - towns[j].y;
             distance[i][j] = (int) sqrt ((double) ((dx * dx) + (dy * dy))) ;

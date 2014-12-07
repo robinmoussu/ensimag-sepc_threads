@@ -1,4 +1,4 @@
-#ifndef TSP_GENMAP_H
+﻿#ifndef TSP_GENMAP_H
 #define TSP_GENMAP_H
 
 /** nombre de villes */

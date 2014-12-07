@@ -1,6 +1,6 @@
-/** \file
+﻿/** \file
  *
- * \brief impl�mentation des queues de jobs, nul besoin de lire dans un premier temps
+ * \brief implémentation des queues de jobs, nul besoin de lire dans un premier temps
  */
 
 #include <stdlib.h>

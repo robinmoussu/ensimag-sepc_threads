@@ -1,4 +1,4 @@
-#ifndef _TSP_TYPES_H
+﻿#ifndef _TSP_TYPES_H
 #define _TSP_TYPES_H
 
 #define MAX_TOWNS 30

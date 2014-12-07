@@ -1,4 +1,4 @@
-#ifndef TSP_PRINT_H
+﻿#ifndef TSP_PRINT_H
 #define TSP_PRINT_H
 
 #include "tsp-types.h"
@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 
-/** impression tableau des distances, pour v�rifier au besoin */
+/** impression tableau des distances, pour vérifier au besoin */
 void print_distance_matrix (bool svg);
 
 /** Affichage d'une solution possible. */

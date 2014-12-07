@@ -1,11 +1,11 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 
 #include "tsp-print.h"
 #include "tsp-types.h"
 #include "tsp-genmap.h"
 
 
-/** impression tableau des distances, pour v�rifier au besoin */
+/** impression tableau des distances, pour vérifier au besoin */
 void print_distance_matrix (bool svg)
 {
     int i, j;

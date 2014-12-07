@@ -1,4 +1,4 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -24,7 +24,7 @@
 /** tableau des distances */
 tsp_distance_matrix_t distance ={};
 
-/// Paramètres
+/// ParamÃ¨tres
 
 /** nombre de villes */
 int nb_towns=10;
@@ -45,7 +45,7 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len, tsp_path_
     }
 
     if (hops == depth) {
-        /* On enregistre du travail à faire plus tard... */
+        /* On enregistre du travail Ã  faire plus tard... */
         add_job (q, path, hops, len);
     } else {
         int me = path [hops - 1];
