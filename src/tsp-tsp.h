@@ -1,7 +1,7 @@
 #ifndef TSP_TSP_H
 #define TSP_TSP_H
 
-/* dernier minimum trouvé */
+/** dernier minimum trouvé */
 extern int minimum;
 
 int present (int city, int hops, tsp_path_t path);

@@ -15,30 +15,30 @@ static double complex barycentre;
 int *cutprefix;
 
 static int angle_barycentre(const void *a, const void *b) {
-	const coor_t *v1 = a;
-	const coor_t *v2 = b;
-	
-	double complex c1 = v1->x + v1->y * I - barycentre;
-	double complex c2 = v2->x + v2->y * I - barycentre;
-	double a1 = carg(c1);
-	double a2 = carg(c2);
+    const coor_t *v1 = a;
+    const coor_t *v2 = b;
 
-	return (a1 - a2 > 0)?1:-1;
+    double complex c1 = v1->x + v1->y * I - barycentre;
+    double complex c2 = v2->x + v2->y * I - barycentre;
+    double a1 = carg(c1);
+    double a2 = carg(c2);
+
+    return (a1 - a2 > 0)?1:-1;
 }
 
 static int trie_entier (const void *a, const void *b) {
-	const int *i1 = a;
-	const int *i2 = b;
+    const int *i1 = a;
+    const int *i2 = b;
 
-	return *i1 - *i2;
+    return *i1 - *i2;
 }
 
-/* initialisation du tableau des distances */
+/** initialisation du tableau des distances */
 void genmap () {
 
     int i, j;
     int dx, dy;
-    
+
     if (nb_towns > MAX_TOWNS) {
         fprintf (stderr, "[Erreur] Trop de villes! Augmentez MAX_TOWNS dans tsp-types.h\n");
         exit (1);
@@ -50,8 +50,8 @@ void genmap () {
     for (i = 0; i < nb_towns; i++) {
         towns[i].x = lrand48 () % MAXX;
         towns[i].y = lrand48 () % MAXY;
-	barycentre_x += towns[i].x;
-	barycentre_y += towns[i].y;
+        barycentre_x += towns[i].x;
+        barycentre_y += towns[i].y;
     }
     barycentre_x /= nb_towns;
     barycentre_y /= nb_towns;
@@ -59,7 +59,7 @@ void genmap () {
 
     /* trier les villes en fonction de leurs angles par rapport au
      * barycentre */
-    qsort(towns, nb_towns, sizeof(coor_t), angle_barycentre); 
+    qsort(towns, nb_towns, sizeof(coor_t), angle_barycentre);
 
     /* sumprefix sur la distance minimale entre chaque ville */
     /* symetrie => ne regarder que les villes d'indice plus faible */
@@ -73,7 +73,7 @@ void genmap () {
             dy = towns[i].y - towns[j].y;
             distance[i][j] = (int) sqrt ((double) ((dx * dx) + (dy * dy))) ;
             if (i != j && distance[i][j] < cutprefix[i] && i < j )
-	      cutprefix[i] = distance[i][j];
+                cutprefix[i] = distance[i][j];
         }
     }
 
@@ -81,7 +81,7 @@ void genmap () {
     qsort(cutprefix, nb_towns+1, sizeof(int), trie_entier);
     long long int prefix=0;
     for(i=0; i < nb_towns+1; i++) {
-      prefix += cutprefix[i];
-      cutprefix[i] = prefix;
+        prefix += cutprefix[i];
+        cutprefix[i] = prefix;
     }
 }

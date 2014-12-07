@@ -6,10 +6,10 @@
 
 #include <stdbool.h>
 
-/* impression tableau des distances, pour vérifier au besoin */
+/** impression tableau des distances, pour vérifier au besoin */
 void print_distance_matrix (bool svg);
 
-/* Affichage d'une solution possible. */
+/** Affichage d'une solution possible. */
 void print_solution (tsp_path_t path, int len);
 
 void print_solution_svg (tsp_path_t path, int len);
