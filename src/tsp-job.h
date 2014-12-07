@@ -16,7 +16,14 @@ extern void init_queue (struct tsp_queue *q);
 extern void add_job (struct tsp_queue *q, tsp_path_t p, int hops, int len) ;
 
 /** Enlève un job de la file [q], le stocke dans [p], [hops] et [len].
- * \return 0 si la file est temporairement vide. */
+ *
+ * \param q [in out]
+ * \param p [out]
+ * \param hops [out]
+ * \param len [out]
+ *
+ * \return 0 si la file est vide.
+ **/
 extern int get_job (struct tsp_queue *q, tsp_path_t p, int *hops, int *len) ;
 
 /** Enregistre qu'il n'y aura plus de jobs ajoutés à la file. */
