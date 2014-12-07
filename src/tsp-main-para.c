@@ -31,10 +31,10 @@ int nb_towns=10;
 /** graine */
 long int myseed= 0;
 /** nombre de threads */
-int nb_threads=1;
+static int nb_threads=1;
 
 /** affichage SVG */
-bool affiche_sol= false;
+static bool affiche_sol= false;
 
 
 static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len, int depth)
