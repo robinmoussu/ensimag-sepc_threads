@@ -28,7 +28,7 @@ find_library(MISC_LIBRARY NAMES m libm rt librt)
 # il faut les ajouter ici
 ##
 add_executable(ensitsp src/tsp-genmap.c  src/tsp-job.c  src/tsp-main-para.c  src/tsp-print.c  src/tsp-tsp.c)
-target_link_libraries(ensitsp ${CMAKE_THREAD_LIBS_INIT} m rt)
+target_link_libraries(ensitsp ${CMAKE_THREAD_LIBS_INIT} m rt pthread)
 
 ##
 # Programme de test
