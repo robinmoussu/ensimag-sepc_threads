@@ -37,7 +37,19 @@ static int nb_threads=1;
 static bool affiche_sol= false;
 
 
-static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len, int depth)
+/**
+ * struct tsp_queue *q
+ * param hops Nombre de saut
+ * param len
+ * param path
+ * param long int *cuts
+ * param sol
+ * param *sol_len
+ * param depth
+ */
+static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
+            tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len,
+            int depth)
 {
     if (len >= minimum) {
         (*cuts)++ ;
