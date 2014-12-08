@@ -49,9 +49,18 @@ typedef struct {
     int depth;
 } args_generate_tsp_t;
 
+typedef struct {
+    struct tsp_queue *q;
+    path_elem_t* solution;
+    long long int *cuts;
+    path_elem_t *sol;
+    int *sol_len;
+} args_consume_tsp_t;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 static void generate_tsp_jobs_paralel(void *args);
+static void consume_tsp_jobs_parallele(void *args);
 
 /**
  * struct tsp_queue *q
@@ -112,6 +121,27 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
             }
         }
     }
+}
+
+static void consume_tsp_jobs_parallele(void *args)
+{
+    int hops = 0, len = 0;
+
+    // on récupère les arguments
+    args_consume_tsp_t *args_consume_tsp = (args_consume_tsp_t*) args;
+
+    get_job(args_consume_tsp->q,
+            args_consume_tsp->solution,
+            &hops,
+            &len
+        );
+    tsp(    hops,
+            len,
+            args_consume_tsp->solution,
+            args_consume_tsp->cuts,
+            args_consume_tsp->sol,
+            args_consume_tsp->sol_len
+        );
 }
 
 static void usage(const char *name) {
@@ -184,10 +214,17 @@ int main (int argc, char **argv)
     tsp_path_t solution;
     memset (solution, -1, MAX_TOWNS * sizeof (int));
     solution[0] = 0;
+
+    args_consume_tsp_t args_consume_tsp;
+
+    args_consume_tsp.q        = &q;
+    args_consume_tsp.solution = solution;
+    args_consume_tsp.cuts     = &cuts;
+    args_consume_tsp.sol      = sol;
+    args_consume_tsp.sol_len  = &sol_len;
+
     while (!empty_queue (&q)) {
-        int hops = 0, len = 0;
-        get_job (&q, solution, &hops, &len);
-        tsp (hops, len, solution, &cuts, sol, &sol_len);
+        consume_tsp_jobs_parallele(&args_consume_tsp);
     }
 
     clock_gettime (CLOCK_REALTIME, &t2);
