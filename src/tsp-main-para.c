@@ -36,6 +36,22 @@ static int nb_threads=1;
 /** affichage SVG */
 static bool affiche_sol= false;
 
+////////////////////////////////////////////////////////////////////////////////
+
+typedef struct {
+    struct tsp_queue *q;
+    int hops;
+    int len;
+    path_elem_t *path;
+    long long int *cuts;
+    path_elem_t *sol;
+    int *sol_len;
+    int depth;
+} args_generate_tsp_t;
+
+////////////////////////////////////////////////////////////////////////////////
+
+static void generate_tsp_jobs_paralel(void *args);
 
 /**
  * struct tsp_queue *q
@@ -54,6 +70,25 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
 static void usage(const char *name);
 
 ////////////////////////////////////////////////////////////////////////////////
+
+static void generate_tsp_jobs_paralel(void *args)
+{
+    // on récupère les arguments
+    args_generate_tsp_t *args_generate_tsp = (args_generate_tsp_t*) args;
+
+    // on appele la fonction réelle
+    generate_tsp_jobs(
+        args_generate_tsp->q,
+        args_generate_tsp->hops,
+        args_generate_tsp->len,
+        args_generate_tsp->path,
+        args_generate_tsp->cuts,
+        args_generate_tsp->sol,
+        args_generate_tsp->sol_len,
+        args_generate_tsp->depth
+        );
+    no_more_jobs(args_generate_tsp->q);
+}
 
 static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
             tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len,
@@ -132,8 +167,18 @@ int main (int argc, char **argv)
     path[0] = 0;
 
     /* mettre les travaux dans la file d'attente */
-    generate_tsp_jobs (&q, 1, 0, path, &cuts, sol, & sol_len, 3);
-    no_more_jobs (&q);
+    args_generate_tsp_t args_generate_tsp;
+
+    args_generate_tsp.q       = &q;
+    args_generate_tsp.hops    = 1;
+    args_generate_tsp.len     = 0;
+    args_generate_tsp.path    = path;
+    args_generate_tsp.cuts    = &cuts;
+    args_generate_tsp.sol     = sol;
+    args_generate_tsp.sol_len = & sol_len;
+    args_generate_tsp.depth   = 3;
+
+    generate_tsp_jobs_paralel(&args_generate_tsp);
 
     /* calculer chacun des travaux */
     tsp_path_t solution;
