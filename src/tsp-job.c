@@ -22,7 +22,12 @@ struct tsp_cell {
     struct tsp_cell *next;
 };
 
-pthread_mutex_t mutex_jobs = PTHREAD_MUTEX_INITIALIZER;
+////////////////////////////////////////////////////////////////////////////////
+
+static pthread_mutex_t mutex_jobs     = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t  cond_consumer  = PTHREAD_COND_INITIALIZER;
+
+////////////////////////////////////////////////////////////////////////////////
 
 void init_queue (struct tsp_queue *q) {
     pthread_mutex_lock (& mutex_jobs);
@@ -68,6 +73,7 @@ void add_job (struct tsp_queue *q, tsp_path_t p, int hops, int len) {
         q->last = ptr;
     }
 
+    pthread_cond_signal (& cond_consumer);
     pthread_mutex_unlock (& mutex_jobs);
 }
 
@@ -76,8 +82,8 @@ int get_job (struct tsp_queue *q, tsp_path_t p, int *hops, int *len) {
 
     pthread_mutex_lock (& mutex_jobs);
 
-    if (q->first == 0) {
-        return 0;
+    while (q->first == 0) {
+        pthread_cond_wait (& cond_consumer, & mutex_jobs);
     }
 
     ptr = q->first;
