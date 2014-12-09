@@ -21,20 +21,15 @@
     ((t2.tv_sec - t1.tv_sec) * 1000000000ll + (long long int) (t2.tv_nsec - t1.tv_nsec))
 
 
+// variable globales
+
 /** tableau des distances */
 tsp_distance_matrix_t distance ={};
-
-/// Paramètres
 
 /** nombre de villes */
 int nb_towns=10;
 /** graine */
 long int myseed= 0;
-/** nombre de threads */
-static int nb_threads=1;
-
-/** affichage SVG */
-static bool affiche_sol= false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -164,6 +159,12 @@ int main (int argc, char **argv)
     long long int cuts = 0;
     struct tsp_queue q;
     struct timespec t1, t2;
+
+    /** nombre de threads */
+    int nb_threads=1;
+
+    /** affichage SVG */
+    bool affiche_sol= false;
 
     /* lire les arguments */
     int opt;
