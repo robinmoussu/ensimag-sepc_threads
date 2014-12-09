@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <limits.h>
 #include <time.h>
 #include <assert.h>
 #include <complex.h>
@@ -62,7 +61,7 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
             tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len,
             int depth)
 {
-    if (len >= minimum) {
+    if (len >= get_minimum()) {
         (*cuts)++ ;
         return;
     }
@@ -124,8 +123,6 @@ int main (int argc, char **argv)
     nb_threads = atoi(argv[optind+2]);
     assert(nb_towns > 0);
     assert(nb_threads > 0);
-
-    minimum = INT_MAX;
 
     /* generer la carte et la matrice de distance */
     fprintf (stderr, "ncities = %3d\n", nb_towns);

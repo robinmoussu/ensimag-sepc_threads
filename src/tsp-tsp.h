@@ -1,8 +1,9 @@
 ﻿#ifndef TSP_TSP_H
 #define TSP_TSP_H
 
-/** GLOBAL dernier minimum trouvé */
-extern int minimum;
+/** Retourne le dernier minimun trouvé
+ */
+int get_minimum();
 
 int present (int city, int hops, tsp_path_t path);
 

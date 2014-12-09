@@ -1,5 +1,6 @@
 ﻿#include <assert.h>
 #include <string.h>
+#include <limits.h>
 
 #include "tsp-types.h"
 #include "tsp-genmap.h"
@@ -7,10 +8,15 @@
 #include "tsp-tsp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// Variable globale
+// Variable static accessible d'une autre unitée de compilation
 
 /** dernier minimum trouvé */
-int minimum;
+static int minimum = INT_MAX;
+
+
+int get_minimum() {
+    return minimum;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
