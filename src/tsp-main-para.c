@@ -59,8 +59,8 @@ typedef struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void generate_tsp_jobs_paralel(void *args);
-static void consume_tsp_jobs_parallele(void *args);
+static void* generate_tsp_jobs_paralel(void *args);
+static void* consume_tsp_jobs_parallele(void *args);
 
 /**
  * struct tsp_queue *q
@@ -80,7 +80,7 @@ static void usage(const char *name);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void generate_tsp_jobs_paralel(void *args)
+static void* generate_tsp_jobs_paralel(void *args)
 {
     // on récupère les arguments
     args_generate_tsp_t *args_generate_tsp = (args_generate_tsp_t*) args;
@@ -97,6 +97,8 @@ static void generate_tsp_jobs_paralel(void *args)
         args_generate_tsp->depth
         );
     no_more_jobs(args_generate_tsp->q);
+
+    return 0;
 }
 
 static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
@@ -123,7 +125,7 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
     }
 }
 
-static void consume_tsp_jobs_parallele(void *args)
+static void* consume_tsp_jobs_parallele(void *args)
 {
     int hops = 0, len = 0;
 
@@ -142,6 +144,8 @@ static void consume_tsp_jobs_parallele(void *args)
             args_consume_tsp->sol,
             args_consume_tsp->sol_len
         );
+
+    return 0;
 }
 
 static void usage(const char *name) {
