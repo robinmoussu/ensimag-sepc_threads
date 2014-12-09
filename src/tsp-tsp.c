@@ -25,7 +25,6 @@ int get_minimum() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/** résolution du problème du voyageur de commerce */
 int present (int city, int hops, tsp_path_t path)
 {
     for (int i = 0; i < hops; i++) {
