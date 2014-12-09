@@ -10,6 +10,8 @@
 #include "tsp-types.h"
 #include "tsp-job.h"
 
+////////////////////////////////////////////////////////////////////////////////
+
 struct tsp_job {
     tsp_path_t path;
     int hops;
@@ -26,6 +28,8 @@ void init_queue (struct tsp_queue *q) {
     q->last = 0;
     q->end = 0;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 int empty_queue (struct tsp_queue *q) {
     return ((q->first == 0) && (q->end == 1));

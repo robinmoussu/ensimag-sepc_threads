@@ -16,11 +16,15 @@
 #include "tsp-tsp.h"
 
 
+////////////////////////////////////////////////////////////////////////////////
+// macro
+
 /** macro de mesure de temps, retourne une valeur en nanosecondes */
 #define TIME_DIFF(t1, t2) \
     ((t2.tv_sec - t1.tv_sec) * 1000000000ll + (long long int) (t2.tv_nsec - t1.tv_nsec))
 
 
+////////////////////////////////////////////////////////////////////////////////
 // variable globales
 
 /** tableau des distances */
@@ -43,6 +47,17 @@ long int myseed= 0;
  * param *sol_len
  * param depth
  */
+static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
+            tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len,
+            int depth);
+
+/** Écrit dans la sortie d'erreur une courte description du programme
+ * \param name [in] nom du programme
+ */
+static void usage(const char *name);
+
+////////////////////////////////////////////////////////////////////////////////
+
 static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
             tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len,
             int depth)

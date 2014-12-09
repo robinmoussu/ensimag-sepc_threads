@@ -6,8 +6,13 @@
 #include "tsp-print.h"
 #include "tsp-tsp.h"
 
+////////////////////////////////////////////////////////////////////////////////
+// Variable globale
+
 /** dernier minimum trouvé */
 int minimum;
+
+////////////////////////////////////////////////////////////////////////////////
 
 /** résolution du problème du voyageur de commerce */
 int present (int city, int hops, tsp_path_t path)
