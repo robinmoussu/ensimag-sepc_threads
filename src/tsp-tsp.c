@@ -36,7 +36,7 @@ int present (int city, int hops, tsp_path_t path)
 
 void tsp (int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len)
 {
-    if (len + cutprefix[(nb_towns-hops)] >= minimum) {
+    if (len + get_cutprefix()[(nb_towns-hops)] >= minimum) {
         (*cuts)++ ;
         return;
     }

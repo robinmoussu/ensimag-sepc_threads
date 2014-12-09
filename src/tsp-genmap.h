@@ -10,8 +10,9 @@ typedef struct {
 typedef coor_t *coortab_t;
 coortab_t towns;
 
-extern int *cutprefix;
-
 /** initialisation du tableau des distances */
 void genmap ();
+
+int* get_cutprefix();
+
 #endif

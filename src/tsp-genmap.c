@@ -11,9 +11,14 @@
 #include "tsp-genmap.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// Variable globale
+// Variable static accessible d'une autre unitée de compilation
 
-int *cutprefix;
+static int *cutprefix;
+
+int* get_cutprefix()
+{
+    return cutprefix;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variable static
