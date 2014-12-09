@@ -239,19 +239,27 @@ int main (int argc, char **argv)
     args_consume_tsp.sem      = &sem_thread;
 
     int ret_consume = 0;
-    pthread_t pthread_consume;
+    pthread_t *pthread_consume = malloc(sizeof(*pthread_consume) * nb_threads);
 
     while (!ret_consume && !empty_queue(&q)) {
+        int sval;
+
+        sem_getvalue(&sem_thread, &sval);
+        fprintf(stderr, "Attente, current number of threads : %d\n", nb_threads - sval);
+
         sem_wait(&sem_thread);
+        if (empty_queue(&q)) {
+            break;
+        }
+
+        sem_getvalue(&sem_thread, &sval);
 
 #ifdef DEBUG
-        int sval;
-        sem_getvalue(&sem_thread, &sval);
         fprintf(stderr, "Current number of threads : %d\n", nb_threads - sval);
 #endif // DEBUG
 
         ret_consume = pthread_create (
-                & pthread_consume, NULL,
+                &(pthread_consume[sval]), NULL,
                 consume_tsp_jobs_parallele,
                 &args_consume_tsp
                 );
@@ -259,6 +267,15 @@ int main (int argc, char **argv)
     if (ret_consume) {
         fprintf(stderr, "Erreur d'allocation de thread : %d.\n", ret_consume);
     }
+
+    fprintf(stderr, "Attente de la fin des threads.\n");
+    /* Attente de la fin des threads. */
+    for (int i = 0; i < nb_threads; i++) {
+        pthread_join(pthread_consume[i], NULL);
+    }
+    free(pthread_consume);
+
+    fprintf(stderr, "Fin du programme.\n");
 
     clock_gettime (CLOCK_REALTIME, &t2);
 
