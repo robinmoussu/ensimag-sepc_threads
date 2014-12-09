@@ -3,8 +3,10 @@
 
 #define MAX_TOWNS 30
 
-typedef int tsp_distance_matrix_t [MAX_TOWNS*MAX_TOWNS];
-typedef int tsp_path_t [MAX_TOWNS];
+typedef int tsp_distance_matrix_t [MAX_TOWNS] [MAX_TOWNS];
+
+typedef int path_elem_t;
+typedef path_elem_t tsp_path_t [MAX_TOWNS];
 
 #define MAXX    100
 #define MAXY    100
