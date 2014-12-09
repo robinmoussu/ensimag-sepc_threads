@@ -1,5 +1,6 @@
 ﻿#include <assert.h>
 #include <string.h>
+#include <pthread.h>
 #include <limits.h>
 
 #include "tsp-types.h"
@@ -16,11 +17,7 @@ static int minimum = INT_MAX;
 // attention la fonction tsp modifie le minimum
 
 int get_minimum() {
-    int ret;
-
-    ret = minimum;
-
-    return ret;
+    return minimum;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,12 +45,18 @@ void tsp (int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t so
     if (hops == get_nb_towns()) {
         int me = path [hops - 1];
         int dist = get_distance(me, 0); // retourner en 0
+
+        static pthread_mutex_t mutex_minimum = PTHREAD_MUTEX_INITIALIZER;
+
+        pthread_mutex_lock(&mutex_minimum);
         if ( len + dist < minimum ) {
             minimum = len + dist;
             *sol_len = len + dist;
             memcpy(sol, path, get_nb_towns()*sizeof(int));
             print_solution (path, len+dist);
         }
+        pthread_mutex_unlock(&mutex_minimum);
+
     } else {
         int me = path [hops - 1];
         for (int i = 0; i < get_nb_towns(); i++) {
