@@ -17,6 +17,7 @@
 #include "tsp-print.h"
 #include "tsp-tsp.h"
 
+#define DEBUG
 
 /** macro de mesure de temps, retourne une valeur en nanosecondes */
 #define TIME_DIFF(t1, t2) \
@@ -242,6 +243,13 @@ int main (int argc, char **argv)
 
     while (!ret_consume && !empty_queue(&q)) {
         sem_wait(&sem_thread);
+
+#ifdef DEBUG
+        int sval;
+        sem_getvalue(&sem_thread, &sval);
+        fprintf(stderr, "Current number of threads : %d\n", nb_threads - sval);
+#endif // DEBUG
+
         ret_consume = pthread_create (
                 & pthread_consume, NULL,
                 consume_tsp_jobs_parallele,
