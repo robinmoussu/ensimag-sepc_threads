@@ -13,6 +13,7 @@
 /** dernier minimum trouvé */
 static int minimum = INT_MAX;
 
+// attention la fonction tsp modifie le minimum
 
 int get_minimum() {
     int ret;

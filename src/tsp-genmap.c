@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 #include <limits.h>
 #include <time.h>
 #include <assert.h>
@@ -14,9 +15,11 @@
 // Variable static accessible d'une autre unitée de compilation
 
 static int *cutprefix;
+static bool cutprefix_initialised = false;
 
 int* get_cutprefix()
 {
+    assert(cutprefix_initialised);
     int *ret;
 
     ret = cutprefix;
@@ -25,10 +28,12 @@ int* get_cutprefix()
 }
 
 /** nombre de villes */
-static int nb_towns=10;
+static int nb_towns;
+static bool nb_towns_initialised = false;
 
 int get_nb_towns()
 {
+    assert(nb_towns_initialised);
     int ret;
 
     ret = nb_towns;
@@ -38,17 +43,36 @@ int get_nb_towns()
 
 void set_nb_towns(int new_nb_towns)
 {
+    assert( ! nb_towns_initialised);
     nb_towns = new_nb_towns;
+    nb_towns_initialised = true;
 }
 
 /** Villes de la simulation */
 static coor_t* towns;
+static bool towns_initialised = false;
 
 coor_t* get_towns()
 {
+    assert(towns_initialised);
     coor_t *ret;
 
     ret = towns;
+
+    return ret;
+}
+
+
+/** tableau des distances */
+static int distance [MAX_TOWNS] [MAX_TOWNS] = {};
+static bool distance_initialised = false;
+
+int get_distance(int x, int y)
+{
+    assert(distance_initialised);
+    int ret;
+
+    ret = distance[x][y];
 
     return ret;
 }
@@ -87,10 +111,12 @@ static int trie_entier (const void *a, const void *b) {
 }
 
 /** initialisation du tableau des distances */
-void genmap () {
+void genmap(long int seed) {
 
     int i, j;
     int dx, dy;
+
+    // initialisation des villes
 
     if (nb_towns > MAX_TOWNS) {
         fprintf (stderr, "[Erreur] Trop de villes! Augmentez MAX_TOWNS dans tsp-types.h\n");
@@ -98,7 +124,7 @@ void genmap () {
     }
     towns = (coor_t*) calloc(nb_towns, sizeof(coor_t));
 
-    srand48 ( get_myseed() ) ;
+    srand48(seed) ;
 
     for (i = 0; i < nb_towns; i++) {
         towns[i].x = lrand48 () % MAXX;
@@ -113,10 +139,13 @@ void genmap () {
     /* trier les villes en fonction de leurs angles par rapport au
      * barycentre */
     qsort(towns, nb_towns, sizeof(coor_t), angle_barycentre);
+    towns_initialised = true;
 
     /* sumprefix sur la distance minimale entre chaque ville */
     /* symetrie => ne regarder que les villes d'indice plus faible */
     cutprefix = (int *) calloc(nb_towns+1, sizeof(int));
+
+    // initialisation de cutprefix et de distance
 
     for (i = 0; i < nb_towns; i++) {
         cutprefix[i] = INT_MAX;
@@ -124,11 +153,12 @@ void genmap () {
             /* Un peu réaliste */
             dx = towns[i].x - towns[j].x;
             dy = towns[i].y - towns[j].y;
-            set_distance(i, j, (int) sqrt ((double) ((dx * dx) + (dy * dy)))) ;
-            if (i != j && get_distance(i, j) < cutprefix[i] && i < j )
-                cutprefix[i] = get_distance(i, j);
+            distance[i][j] = (int) sqrt ((double) ((dx * dx) + (dy * dy)));
+            if (i != j && distance[i][j] < cutprefix[i] && i < j )
+                cutprefix[i] = distance[i][j];
         }
     }
+    distance_initialised = true;
 
     cutprefix[nb_towns] = 0;
     qsort(cutprefix, nb_towns+1, sizeof(int), trie_entier);
@@ -137,4 +167,5 @@ void genmap () {
         prefix += cutprefix[i];
         cutprefix[i] = prefix;
     }
+    cutprefix_initialised = true;
 }

@@ -19,8 +19,10 @@ coor_t* get_towns();
 
 int* get_cutprefix();
 
-/** initialisation du tableau des distances */
-void genmap();
+/** initialisation du tableau des distances
+ * \param seed valeur utilisé pour initialiser le générateur aléatoire de la map
+ */
+void genmap(long int seed);
 
 
 #endif

@@ -22,39 +22,6 @@
 #define TIME_DIFF(t1, t2) \
     ((t2.tv_sec - t1.tv_sec) * 1000000000ll + (long long int) (t2.tv_nsec - t1.tv_nsec))
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Variable static accessible d'une autre unitée de compilation
-
-/** tableau des distances */
-static int distance [MAX_TOWNS] [MAX_TOWNS] = {};
-
-int get_distance(int x, int y)
-{
-    int ret;
-
-    ret = distance[x][y];
-
-    return ret;
-}
-
-void set_distance(int x, int y, int new_distance)
-{
-    distance[x][y] = new_distance;
-}
-
-/** graine */
-static long int myseed= 0;
-
-long int get_myseed()
-{
-    long int ret;
-
-    ret = myseed;
-
-    return ret;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -95,7 +62,7 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
         for (int i = 0; i < get_nb_towns(); i++) {
             if (!present (i, hops, path)) {
                 path[hops] = i;
-                int dist = distance[me][i];
+                int dist = get_distance(me, i);
                 generate_tsp_jobs (q, hops + 1, len + dist, path, cuts, sol, sol_len, depth);
             }
         }
@@ -116,6 +83,7 @@ int main (int argc, char **argv)
     long long int cuts = 0;
     struct tsp_queue q;
     struct timespec t1, t2;
+    long int myseed;
 
     /** nombre de threads */
     int nb_threads=1;
@@ -147,7 +115,7 @@ int main (int argc, char **argv)
 
     /* generer la carte et la matrice de distance */
     fprintf (stderr, "ncities = %3d\n", get_nb_towns());
-    genmap ();
+    genmap(myseed);
 
     init_queue (&q);
 
