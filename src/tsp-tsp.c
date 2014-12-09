@@ -15,7 +15,11 @@ static int minimum = INT_MAX;
 
 
 int get_minimum() {
-    return minimum;
+    int ret;
+
+    ret = minimum;
+
+    return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

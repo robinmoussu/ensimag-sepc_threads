@@ -17,7 +17,11 @@ static int *cutprefix;
 
 int* get_cutprefix()
 {
-    return cutprefix;
+    int *ret;
+
+    ret = cutprefix;
+
+    return ret;
 }
 
 /** nombre de villes */
@@ -25,7 +29,11 @@ static int nb_towns=10;
 
 int get_nb_towns()
 {
-    return nb_towns;
+    int ret;
+
+    ret = nb_towns;
+
+    return ret;
 }
 
 void set_nb_towns(int new_nb_towns)
@@ -38,7 +46,11 @@ static coor_t* towns;
 
 coor_t* get_towns()
 {
-    return towns;
+    coor_t *ret;
+
+    ret = towns;
+
+    return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -31,7 +31,11 @@ static int distance [MAX_TOWNS] [MAX_TOWNS] = {};
 
 int get_distance(int x, int y)
 {
-    return distance[x][y];
+    int ret;
+
+    ret = distance[x][y];
+
+    return ret;
 }
 
 void set_distance(int x, int y, int new_distance)
@@ -44,7 +48,11 @@ static long int myseed= 0;
 
 long int get_myseed()
 {
-    return myseed;
+    long int ret;
+
+    ret = myseed;
+
+    return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
