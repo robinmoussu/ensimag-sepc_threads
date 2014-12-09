@@ -8,6 +8,8 @@
 #include <complex.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 #include "tsp-types.h"
 #include "tsp-job.h"
@@ -50,6 +52,7 @@ typedef struct {
     long long int *cuts;
     path_elem_t *sol;
     int *sol_len;
+    sem_t *sem;
 } args_consume_tsp_t;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +143,8 @@ static void* consume_tsp_jobs_parallele(void *args)
             args_consume_tsp->sol_len
         );
 
+    sem_post(args_consume_tsp->sem);
+
     return 0;
 }
 
@@ -159,6 +164,8 @@ int main (int argc, char **argv)
     long long int cuts = 0;
     struct tsp_queue q;
     struct timespec t1, t2;
+    sem_t sem_thread;
+
 
     /** nombre de threads */
     int nb_threads=1;
@@ -187,6 +194,7 @@ int main (int argc, char **argv)
     nb_threads = atoi(argv[optind+2]);
     assert(nb_towns > 0);
     assert(nb_threads > 0);
+    assert(sem_init(&sem_thread, 0, nb_threads) == 0);
 
     minimum = INT_MAX;
 
@@ -227,9 +235,21 @@ int main (int argc, char **argv)
     args_consume_tsp.cuts     = &cuts;
     args_consume_tsp.sol      = sol;
     args_consume_tsp.sol_len  = &sol_len;
+    args_consume_tsp.sem      = &sem_thread;
 
-    while (!empty_queue (&q)) {
-        consume_tsp_jobs_parallele(&args_consume_tsp);
+    int ret_consume = 0;
+    pthread_t pthread_consume;
+
+    while (!ret_consume && !empty_queue(&q)) {
+        sem_wait(&sem_thread);
+        ret_consume = pthread_create (
+                & pthread_consume, NULL,
+                consume_tsp_jobs_parallele,
+                &args_consume_tsp
+                );
+    }
+    if (ret_consume) {
+        fprintf(stderr, "Erreur d'allocation de thread : %d.\n", ret_consume);
     }
 
     clock_gettime (CLOCK_REALTIME, &t2);
