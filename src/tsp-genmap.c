@@ -20,6 +20,27 @@ int* get_cutprefix()
     return cutprefix;
 }
 
+/** nombre de villes */
+static int nb_towns=10;
+
+int get_nb_towns()
+{
+    return nb_towns;
+}
+
+void set_nb_towns(int new_nb_towns)
+{
+    nb_towns = new_nb_towns;
+}
+
+/** Villes de la simulation */
+static coor_t* towns;
+
+coor_t* get_towns()
+{
+    return towns;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Variable static
 
@@ -63,9 +84,9 @@ void genmap () {
         fprintf (stderr, "[Erreur] Trop de villes! Augmentez MAX_TOWNS dans tsp-types.h\n");
         exit (1);
     }
-    towns = (coortab_t) calloc(nb_towns, sizeof(coor_t));
+    towns = (coor_t*) calloc(nb_towns, sizeof(coor_t));
 
-    srand48 ( myseed ) ;
+    srand48 ( get_myseed() ) ;
 
     for (i = 0; i < nb_towns; i++) {
         towns[i].x = lrand48 () % MAXX;
@@ -91,9 +112,9 @@ void genmap () {
             /* Un peu réaliste */
             dx = towns[i].x - towns[j].x;
             dy = towns[i].y - towns[j].y;
-            distance[i][j] = (int) sqrt ((double) ((dx * dx) + (dy * dy))) ;
-            if (i != j && distance[i][j] < cutprefix[i] && i < j )
-                cutprefix[i] = distance[i][j];
+            set_distance(i, j, (int) sqrt ((double) ((dx * dx) + (dy * dy)))) ;
+            if (i != j && get_distance(i, j) < cutprefix[i] && i < j )
+                cutprefix[i] = get_distance(i, j);
         }
     }
 

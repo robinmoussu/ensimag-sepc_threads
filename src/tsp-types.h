@@ -3,17 +3,17 @@
 
 #define MAX_TOWNS 30
 
-typedef int tsp_distance_matrix_t [MAX_TOWNS] [MAX_TOWNS];
+typedef int tsp_distance_matrix_t [MAX_TOWNS*MAX_TOWNS];
 typedef int tsp_path_t [MAX_TOWNS];
 
 #define MAXX    100
 #define MAXY    100
 
-/** tableau des distances */
-extern tsp_distance_matrix_t distance;
+/** Retourne la distance
+ */
+int get_distance(int x, int y);
+void set_distance(int x, int y, int new_distance);
 
-/** parametres du programme */
-extern int nb_towns;
-extern long int myseed;
+long int get_myseed();
 
 #endif

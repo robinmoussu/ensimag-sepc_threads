@@ -15,12 +15,12 @@ void print_distance_matrix (bool svg)
         entete = "<!-- ";
         postfix = " -->";
     }
-    printf ("%snb_towns = %d\n", entete, nb_towns);
+    printf ("%snb_towns = %d\n", entete, get_nb_towns());
 
-    for (i = 0; i < nb_towns; i++) {
+    for (i = 0; i < get_nb_towns(); i++) {
         printf ("distance [%1d]", i);
-        for (j = 0; j < nb_towns; j++) {
-            printf (" [%2d:%2d] ", j, distance[i][j]);
+        for (j = 0; j < get_nb_towns(); j++) {
+            printf (" [%2d:%2d] ", j, get_distance(i, j));
         }
         printf (";\n\n");
     }
@@ -31,7 +31,7 @@ void print_distance_matrix (bool svg)
 /** Affichage d'une solution possible. */
 void print_solution (tsp_path_t path, int len) {
     fprintf (stderr, "found path len = %3d :", len);
-    for (int i = 0; i < nb_towns; i++) {
+    for (int i = 0; i < get_nb_towns(); i++) {
         fprintf (stderr, "%2d ", path[i]);
     }
     fprintf (stderr, "\n") ;
@@ -51,13 +51,13 @@ void print_solution_svg (tsp_path_t path, int len) {
             <path d='M 0 0 L 10 5 L 0 10 z' />\n\
             </marker>\n\
             </defs>\n" );
-    for (int i = 0; i < nb_towns; i++) {
+    for (int i = 0; i < get_nb_towns(); i++) {
         printf ("    <text x='%d' y='%d' font-size='5'>%d</text>\n",
-                towns[path[i]].x+3, towns[path[i]].y+3, path[i]);
-        printf ("    <circle cx='%d' cy='%d' r='3' />\n", towns[path[i]].x, towns[path[i]].y);
+                get_towns()[path[i]].x+3, get_towns()[path[i]].y+3, path[i]);
+        printf ("    <circle cx='%d' cy='%d' r='3' />\n", get_towns()[path[i]].x, get_towns()[path[i]].y);
         printf ("    <line x1='%d' x2='%d' y1='%d' y2='%d' stroke-width='1' marker-end='url(#Triangle)' />\n",
-                towns[path[(i-1+nb_towns)%nb_towns]].x, towns[path[i]].x,
-                towns[path[(i-1+nb_towns)%nb_towns]].y, towns[path[i]].y);
+                get_towns()[path[(i-1+get_nb_towns())%get_nb_towns()]].x, get_towns()[path[i]].x,
+                get_towns()[path[(i-1+get_nb_towns())%get_nb_towns()]].y, get_towns()[path[i]].y);
     }
     printf ("</g>\n\
             </svg>\n") ;

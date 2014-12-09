@@ -24,15 +24,28 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// variable globales
+// Variable static accessible d'une autre unitée de compilation
 
 /** tableau des distances */
-tsp_distance_matrix_t distance ={};
+static int distance [MAX_TOWNS] [MAX_TOWNS] = {};
 
-/** nombre de villes */
-int nb_towns=10;
+int get_distance(int x, int y)
+{
+    return distance[x][y];
+}
+
+void set_distance(int x, int y, int new_distance)
+{
+    distance[x][y] = new_distance;
+}
+
 /** graine */
-long int myseed= 0;
+static long int myseed= 0;
+
+long int get_myseed()
+{
+    return myseed;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -71,7 +84,7 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
         add_job (q, path, hops, len);
     } else {
         int me = path [hops - 1];
-        for (int i = 0; i < nb_towns; i++) {
+        for (int i = 0; i < get_nb_towns(); i++) {
             if (!present (i, hops, path)) {
                 path[hops] = i;
                 int dist = distance[me][i];
@@ -118,14 +131,14 @@ int main (int argc, char **argv)
     if (optind != argc-3)
         usage(argv[0]);
 
-    nb_towns = atoi(argv[optind]);
+    set_nb_towns(atoi(argv[optind]));
     myseed = atol(argv[optind+1]);
     nb_threads = atoi(argv[optind+2]);
-    assert(nb_towns > 0);
+    assert(get_nb_towns() > 0);
     assert(nb_threads > 0);
 
     /* generer la carte et la matrice de distance */
-    fprintf (stderr, "ncities = %3d\n", nb_towns);
+    fprintf (stderr, "ncities = %3d\n", get_nb_towns());
     genmap ();
 
     init_queue (&q);
@@ -156,7 +169,7 @@ int main (int argc, char **argv)
 
     perf = TIME_DIFF (t1,t2);
     printf("<!-- # = %d seed = %ld len = %d threads = %d time = %lld.%03lld ms ( %lld coupures ) -->\n",
-            nb_towns, myseed, sol_len, nb_threads,
+            get_nb_towns(), myseed, sol_len, nb_threads,
             perf/1000000ll, perf%1000000ll, cuts);
 
     return 0 ;
