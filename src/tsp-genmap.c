@@ -17,12 +17,12 @@
 static int *cutprefix;
 static bool cutprefix_initialised = false;
 
-int* get_cutprefix()
+int get_cutprefix(int indice)
 {
     assert(cutprefix_initialised);
-    int *ret;
+    int ret;
 
-    ret = cutprefix;
+    ret = cutprefix[indice];
 
     return ret;
 }

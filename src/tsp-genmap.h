@@ -17,7 +17,7 @@ void set_nb_towns(int new_nb_towns);
  */
 coor_t* get_towns();
 
-int* get_cutprefix();
+int get_cutprefix(int indice);
 
 /** initialisation du tableau des distances
  * \param seed valeur utilisé pour initialiser le générateur aléatoire de la map

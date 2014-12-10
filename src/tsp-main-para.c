@@ -25,15 +25,6 @@
 #define TIME_DIFF(t1, t2) \
     ((t2.tv_sec - t1.tv_sec) * 1000000000ll + (long long int) (t2.tv_nsec - t1.tv_nsec))
 
-// variable globales
-
-/** tableau des distances */
-tsp_distance_matrix_t distance ={};
-
-/** nombre de villes */
-int nb_towns=10;
-/** graine */
-long int myseed= 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,14 +54,14 @@ static void* generate_tsp_jobs_paralel(void *args);
 static void* consume_tsp_jobs_parallele(void *args);
 
 /**
- * struct tsp_queue *q
- * param hops Nombre de saut
- * param len
- * param path
- * param long int *cuts
- * param sol
- * param *sol_len
- * param depth
+ * \param q
+ * \param hops Nombre de saut
+ * \param len
+ * \param path
+ * \param long int *cuts
+ * \param sol
+ * \param *sol_len
+ * \param depth
  */
 static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
             tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len,
@@ -227,27 +218,18 @@ int main (int argc, char **argv)
     generate_tsp_jobs_paralel(&args_generate_tsp);
 
     /* calculer chacun des travaux */
-    tsp_path_t solution;
-    memset (solution, -1, MAX_TOWNS * sizeof (int));
-    solution[0] = 0;
-
-    args_consume_tsp_t args_consume_tsp;
-
-    args_consume_tsp.q        = &q;
-    args_consume_tsp.solution = solution;
-    args_consume_tsp.cuts     = &cuts;
-    args_consume_tsp.sol      = sol;
-    args_consume_tsp.sol_len  = &sol_len;
-    args_consume_tsp.sem      = &sem_thread;
+    tsp_path_t *solution = malloc(sizeof(*solution) * get_nb_towns());
 
     int ret_consume = 0;
-    pthread_t *pthread_consume = malloc(sizeof(*pthread_consume) * nb_threads);
+    pthread_t *pthread_consume = calloc(nb_threads, sizeof(*pthread_consume));
 
     while (!ret_consume && !empty_queue(&q)) {
         int sval;
 
+#ifdef DEBUG
         sem_getvalue(&sem_thread, &sval);
         fprintf(stderr, "Attente, current number of threads : %d\n", nb_threads - sval);
+#endif // DEBUG
 
         sem_wait(&sem_thread);
         if (empty_queue(&q)) {
@@ -259,6 +241,18 @@ int main (int argc, char **argv)
 #ifdef DEBUG
         fprintf(stderr, "Current number of threads : %d\n", nb_threads - sval);
 #endif // DEBUG
+
+        args_consume_tsp_t args_consume_tsp;
+
+        args_consume_tsp.q        = &q;
+        args_consume_tsp.solution = solution[sval];
+        args_consume_tsp.cuts     = &cuts;
+        args_consume_tsp.sol      = sol;
+        args_consume_tsp.sol_len  = &sol_len;
+        args_consume_tsp.sem      = &sem_thread;
+
+        memset (args_consume_tsp.solution, -1, MAX_TOWNS * sizeof (int));
+        args_consume_tsp.solution[0] = 0;
 
         ret_consume = pthread_create (
                 &(pthread_consume[sval]), NULL,
@@ -273,9 +267,11 @@ int main (int argc, char **argv)
     fprintf(stderr, "Attente de la fin des threads.\n");
     /* Attente de la fin des threads. */
     for (int i = 0; i < nb_threads; i++) {
+        fprintf(stderr, "Attente du thread %d.\n", i);
         pthread_join(pthread_consume[i], NULL);
     }
     free(pthread_consume);
+    free(solution);
 
     fprintf(stderr, "Fin du programme.\n");
 
