@@ -40,6 +40,7 @@ typedef struct {
 } args_generate_tsp_t;
 
 typedef struct {
+    int thread_n;
     struct tsp_queue *q;
     path_elem_t* solution;
     long long int *cuts;
@@ -121,25 +122,43 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
 
 static void* consume_tsp_jobs_parallele(void *args)
 {
+    static pthread_mutex_t mutex_get_job = PTHREAD_MUTEX_INITIALIZER;
     int hops = 0, len = 0;
 
     // on récupère les arguments
     args_consume_tsp_t *args_consume_tsp = (args_consume_tsp_t*) args;
 
-    get_job(args_consume_tsp->q,
-            args_consume_tsp->solution,
-            &hops,
-            &len
-        );
-    tsp(    hops,
-            len,
-            args_consume_tsp->solution,
-            args_consume_tsp->cuts,
-            args_consume_tsp->sol,
-            args_consume_tsp->sol_len
-        );
+    while (1) {
 
-    sem_post(args_consume_tsp->sem);
+        pthread_mutex_lock (& mutex_get_job);
+        if (empty_queue(args_consume_tsp->q)) {
+            pthread_mutex_unlock (& mutex_get_job);
+            break;
+        }
+
+        memset (args_consume_tsp->solution, -1, MAX_TOWNS * sizeof (int));
+        args_consume_tsp->solution[0] = 0;
+
+        get_job(args_consume_tsp->q,
+                args_consume_tsp->solution,
+                &hops,
+                &len
+            );
+
+        pthread_mutex_unlock (& mutex_get_job);
+
+        tsp(    hops,
+                len,
+                args_consume_tsp->solution,
+                args_consume_tsp->cuts,
+                args_consume_tsp->sol,
+                args_consume_tsp->sol_len
+            );
+    }
+
+#ifdef DEBUG
+        fprintf(stderr, "Fin du thread : %d\n", args_consume_tsp->thread_n);
+#endif // DEBUG
 
     return 0;
 }
@@ -222,46 +241,31 @@ int main (int argc, char **argv)
 
     int ret_consume = 0;
     pthread_t *pthread_consume = calloc(nb_threads, sizeof(*pthread_consume));
+    args_consume_tsp_t *args_consume_tsp = malloc(nb_threads * sizeof(*args_consume_tsp));
 
-    while (!ret_consume && !empty_queue(&q)) {
-        int sval;
 
-#ifdef DEBUG
-        sem_getvalue(&sem_thread, &sval);
-        fprintf(stderr, "Attente, current number of threads : %d\n", nb_threads - sval);
-#endif // DEBUG
+    for (int i = 0; i < nb_threads; i++) {
+        args_consume_tsp[i].thread_n = i;
+        args_consume_tsp[i].q        = &q;
+        args_consume_tsp[i].solution = solution[i];
+        args_consume_tsp[i].cuts     = &cuts;
+        args_consume_tsp[i].sol      = sol;
+        args_consume_tsp[i].sol_len  = &sol_len;
+        args_consume_tsp[i].sem      = &sem_thread;
 
-        sem_wait(&sem_thread);
-        if (empty_queue(&q)) {
-            break;
-        }
-
-        sem_getvalue(&sem_thread, &sval);
-
-#ifdef DEBUG
-        fprintf(stderr, "Current number of threads : %d\n", nb_threads - sval);
-#endif // DEBUG
-
-        args_consume_tsp_t args_consume_tsp;
-
-        args_consume_tsp.q        = &q;
-        args_consume_tsp.solution = solution[sval];
-        args_consume_tsp.cuts     = &cuts;
-        args_consume_tsp.sol      = sol;
-        args_consume_tsp.sol_len  = &sol_len;
-        args_consume_tsp.sem      = &sem_thread;
-
-        memset (args_consume_tsp.solution, -1, MAX_TOWNS * sizeof (int));
-        args_consume_tsp.solution[0] = 0;
 
         ret_consume = pthread_create (
-                &(pthread_consume[sval]), NULL,
+                &(pthread_consume[i]), NULL,
                 consume_tsp_jobs_parallele,
-                &args_consume_tsp
+                &args_consume_tsp[i]
                 );
-    }
-    if (ret_consume) {
-        fprintf(stderr, "Erreur d'allocation de thread : %d.\n", ret_consume);
+
+#ifdef DEBUG
+        if (!ret_consume) {
+            fprintf(stderr, "Démarrage du thread : %d\n", i);
+        }
+#endif // DEBUG
+
     }
 
     fprintf(stderr, "Attente de la fin des threads.\n");
@@ -271,6 +275,7 @@ int main (int argc, char **argv)
         pthread_join(pthread_consume[i], NULL);
     }
     free(pthread_consume);
+    free(args_consume_tsp);
     free(solution);
 
     fprintf(stderr, "Fin du programme.\n");
