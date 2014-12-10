@@ -40,14 +40,14 @@ int present (int city, int hops, tsp_path_t path)
 
 void tsp (int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len)
 {
-    /*static pthread_mutex_t mutex_cuts = PTHREAD_MUTEX_INITIALIZER;*/
+    static pthread_mutex_t mutex_cuts = PTHREAD_MUTEX_INITIALIZER;
     /*static pthread_mutex_t mutex_sol = PTHREAD_MUTEX_INITIALIZER;*/
 
     if (len + get_cutprefix(get_nb_towns()-hops) >= minimum) {
 
-        /*pthread_mutex_lock(&mutex_cuts);*/
+        pthread_mutex_lock(&mutex_cuts);
         (*cuts)++ ;
-        /*pthread_mutex_unlock(&mutex_cuts);*/
+        pthread_mutex_unlock(&mutex_cuts);
 
         return;
     }
