@@ -26,39 +26,18 @@ struct tsp_cell {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static pthread_mutex_t mutex_jobs     = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  cond_consumer  = PTHREAD_COND_INITIALIZER;
-
-////////////////////////////////////////////////////////////////////////////////
-
 void init_queue (struct tsp_queue *q) {
-    pthread_mutex_lock (& mutex_jobs);
-
     q->first = 0;
     q->last = 0;
     q->end = 0;
-
-    pthread_mutex_unlock (& mutex_jobs);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 int empty_queue (struct tsp_queue *q) {
-    int ret;
-
-    pthread_mutex_lock (& mutex_jobs);
-
-    ret = (q->first == 0) && (q->end == 1);
-
-    pthread_mutex_unlock (& mutex_jobs);
-
-    return ret;
+    return (q->first == 0) && (q->end == 1);
 }
 
 void add_job (struct tsp_queue *q, tsp_path_t p, int hops, int len) {
     struct tsp_cell *ptr;
-
-    pthread_mutex_lock (& mutex_jobs);
 
     ptr = malloc (sizeof (*ptr));
     if (!ptr) {
@@ -76,18 +55,13 @@ void add_job (struct tsp_queue *q, tsp_path_t p, int hops, int len) {
         q->last->next = ptr;
         q->last = ptr;
     }
-
-    pthread_cond_signal (& cond_consumer);
-    pthread_mutex_unlock (& mutex_jobs);
 }
 
 int get_job (struct tsp_queue *q, tsp_path_t p, int *hops, int *len) {
     struct tsp_cell *ptr;
 
-    pthread_mutex_lock (& mutex_jobs);
-
-    while (q->first == 0) {
-        pthread_cond_wait (& cond_consumer, & mutex_jobs);
+    if (q->first == 0) {
+        return 0;
     }
 
     ptr = q->first;
@@ -103,16 +77,11 @@ int get_job (struct tsp_queue *q, tsp_path_t p, int *hops, int *len) {
 
     free (ptr);
 
-    pthread_mutex_unlock (& mutex_jobs);
     return 1;
 }
 
 void no_more_jobs (struct tsp_queue *q) {
-    pthread_mutex_lock (& mutex_jobs);
-
     q->end = 1;
-
-    pthread_mutex_unlock (& mutex_jobs);
 }
 
 

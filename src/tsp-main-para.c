@@ -130,22 +130,25 @@ static void* consume_tsp_jobs_parallele(void *args)
 
     while (1) {
 
-        pthread_mutex_lock (& mutex_get_job);
         if (empty_queue(args_consume_tsp->q)) {
-            pthread_mutex_unlock (& mutex_get_job);
+            // Il n'y a plus et n'y aura plus aucun job à faire
             break;
         }
 
         memset (args_consume_tsp->solution, -1, MAX_TOWNS * sizeof (int));
         args_consume_tsp->solution[0] = 0;
 
-        get_job(args_consume_tsp->q,
+        pthread_mutex_lock (& mutex_get_job);
+        int ret = get_job(args_consume_tsp->q,
                 args_consume_tsp->solution,
                 &hops,
                 &len
             );
-
         pthread_mutex_unlock (& mutex_get_job);
+
+        if (ret == 0) {
+            continue;
+        }
 
         tsp(    hops,
                 len,
@@ -234,12 +237,21 @@ int main (int argc, char **argv)
     args_generate_tsp.sol_len = & sol_len;
     args_generate_tsp.depth   = 3;
 
-    generate_tsp_jobs_paralel(&args_generate_tsp);
+    pthread_t pthread_generate;
+    int ret_create;
+
+    ret_create = pthread_create (
+                &(pthread_generate), NULL,
+                generate_tsp_jobs_paralel,
+                &args_generate_tsp
+                );
+
+    assert(!ret_create);
 
     /* calculer chacun des travaux */
     tsp_path_t *solution = malloc(sizeof(*solution) * get_nb_towns());
 
-    int ret_consume = 0;
+    int ret_consume;
     pthread_t *pthread_consume = calloc(nb_threads, sizeof(*pthread_consume));
     args_consume_tsp_t *args_consume_tsp = malloc(nb_threads * sizeof(*args_consume_tsp));
 

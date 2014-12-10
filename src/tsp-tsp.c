@@ -22,19 +22,15 @@ int get_minimum() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static pthread_mutex_t mutex_minimum = PTHREAD_MUTEX_INITIALIZER;
-
 int present (int city, int hops, tsp_path_t path)
 {
     int ret = 0;
-    pthread_mutex_lock(&mutex_minimum);
     for (int i = 0; i < hops; i++) {
         if (path [i] == city) {
             ret = 1;
             break;
         }
     }
-    pthread_mutex_unlock(&mutex_minimum);
 
     return ret ;
 }
@@ -43,38 +39,39 @@ int present (int city, int hops, tsp_path_t path)
 
 void tsp (int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len)
 {
+    static pthread_mutex_t mutex_cuts = PTHREAD_MUTEX_INITIALIZER;
+    static pthread_mutex_t mutex_sol = PTHREAD_MUTEX_INITIALIZER;
+
     if (len + get_cutprefix(get_nb_towns()-hops) >= minimum) {
 
-        pthread_mutex_lock(&mutex_minimum);
+        pthread_mutex_lock(&mutex_cuts);
         (*cuts)++ ;
-        pthread_mutex_unlock(&mutex_minimum);
+        pthread_mutex_unlock(&mutex_cuts);
 
         return;
     }
 
     if (hops == get_nb_towns()) {
 
-        pthread_mutex_lock(&mutex_minimum);
         int me = path [hops - 1];
         int dist = get_distance(me, 0); // retourner en 0
         if ( len + dist < minimum ) {
             minimum = len + dist;
+
+            pthread_mutex_lock(&mutex_sol);
             *sol_len = len + dist;
             memcpy(sol, path, get_nb_towns()*sizeof(int));
+            pthread_mutex_unlock(&mutex_sol);
+
             print_solution (path, len+dist);
         }
-        pthread_mutex_unlock(&mutex_minimum);
 
     } else {
         int me = path [hops - 1];
         for (int i = 0; i < get_nb_towns(); i++) {
             if (!present (i, hops, path)) {
-
-                pthread_mutex_lock(&mutex_minimum);
                 path[hops] = i;
                 int dist = get_distance(me, i);
-                pthread_mutex_unlock(&mutex_minimum);
-
                 tsp (hops + 1, len + dist, path, cuts, sol, sol_len);
             }
         }
