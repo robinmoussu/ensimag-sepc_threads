@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <semaphore.h>
 
 #include "tsp-types.h"
 #include "tsp-job.h"
@@ -46,7 +45,6 @@ typedef struct {
     long long int *cuts;
     path_elem_t *sol;
     int *sol_len;
-    sem_t *sem;
 } args_consume_tsp_t;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +120,6 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len,
 
 static void* consume_tsp_jobs_parallele(void *args)
 {
-    static pthread_mutex_t mutex_get_job = PTHREAD_MUTEX_INITIALIZER;
     int hops = 0, len = 0;
 
     // on récupère les arguments
@@ -135,16 +132,14 @@ static void* consume_tsp_jobs_parallele(void *args)
             break;
         }
 
-        memset (args_consume_tsp->solution, -1, MAX_TOWNS * sizeof (int));
-        args_consume_tsp->solution[0] = 0;
+        /*memset (args_consume_tsp->solution, -1, MAX_TOWNS * sizeof (int));*/
+        /*args_consume_tsp->solution[0] = 0;*/
 
-        pthread_mutex_lock (& mutex_get_job);
         int ret = get_job(args_consume_tsp->q,
                 args_consume_tsp->solution,
                 &hops,
                 &len
             );
-        pthread_mutex_unlock (& mutex_get_job);
 
         if (ret == 0) {
             continue;
@@ -160,7 +155,7 @@ static void* consume_tsp_jobs_parallele(void *args)
     }
 
 #ifdef DEBUG
-        fprintf(stderr, "Fin du thread : %d\n", args_consume_tsp->thread_n);
+    fprintf(stderr, "Fin du thread : %d\n", args_consume_tsp->thread_n);
 #endif // DEBUG
 
     return 0;
@@ -183,10 +178,9 @@ int main (int argc, char **argv)
     struct tsp_queue q;
     struct timespec t1, t2;
     long int myseed;
-    sem_t sem_thread;
 
     /** nombre de threads */
-    int nb_threads=1;
+    int nb_threads;
 
     /** affichage SVG */
     bool affiche_sol= false;
@@ -210,9 +204,9 @@ int main (int argc, char **argv)
     set_nb_towns(atoi(argv[optind]));
     myseed = atol(argv[optind+1]);
     nb_threads = atoi(argv[optind+2]);
+
     assert(get_nb_towns() > 0);
     assert(nb_threads > 0);
-    assert(sem_init(&sem_thread, 0, nb_threads) == 0);
 
     /* generer la carte et la matrice de distance */
     fprintf (stderr, "ncities = %3d\n", get_nb_towns());
@@ -263,8 +257,6 @@ int main (int argc, char **argv)
         args_consume_tsp[i].cuts     = &cuts;
         args_consume_tsp[i].sol      = sol;
         args_consume_tsp[i].sol_len  = &sol_len;
-        args_consume_tsp[i].sem      = &sem_thread;
-
 
         ret_consume = pthread_create (
                 &(pthread_consume[i]), NULL,

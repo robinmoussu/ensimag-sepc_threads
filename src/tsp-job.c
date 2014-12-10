@@ -60,16 +60,22 @@ void add_job (struct tsp_queue *q, tsp_path_t p, int hops, int len) {
 int get_job (struct tsp_queue *q, tsp_path_t p, int *hops, int *len) {
     struct tsp_cell *ptr;
 
+    static pthread_mutex_t mutex_jobs = PTHREAD_MUTEX_INITIALIZER;
+
+    pthread_mutex_lock (& mutex_jobs);
     if (q->first == 0) {
+        pthread_mutex_unlock (& mutex_jobs);
         return 0;
     }
 
     ptr = q->first;
 
     q->first = ptr->next;
+
     if (q->first == 0) {
         q->last = 0;
     }
+    pthread_mutex_unlock (& mutex_jobs);
 
     *len = ptr->tsp_job.len;
     *hops = ptr->tsp_job.hops;
