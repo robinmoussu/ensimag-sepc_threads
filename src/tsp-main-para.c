@@ -8,6 +8,7 @@
 #include <complex.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "tsp-types.h"
 #include "tsp-job.h"
@@ -24,7 +25,7 @@
 /* tableau des distances */
 tsp_distance_matrix_t distance ={};
 
-/** Paramètres **/
+/** Param?tres **/
 
 /* nombre de villes */
 int nb_towns=10;
@@ -45,7 +46,7 @@ static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len, tsp_path_
     }
     
     if (hops == depth) {
-        /* On enregistre du travail à faire plus tard... */
+        /* On enregistre du travail ? faire plus tard... */
         add_job (q, path, hops, len);
     } else {
         int me = path [hops - 1];        
@@ -64,6 +65,29 @@ static void usage(const char *name) {
   exit (-1);
 }
 
+typedef struct {
+    struct tsp_queue *q;
+    long long int *cuts;
+    tsp_path_t *sol;
+    int *sol_len;
+} args_consumme_t;
+
+void* consumme_tsp_job_parallele(void *args)
+{
+    args_consumme_t* a = args;
+
+    /* calculer chacun des travaux */
+    tsp_path_t solution;
+    memset (solution, -1, MAX_TOWNS * sizeof (int));
+    solution[0] = 0;
+    while (!empty_queue (a->q)) {
+        int hops = 0, len = 0;
+        get_job (a->q, solution, &hops, &len);
+        tsp (hops, len, solution, a->cuts, *(a->sol), a->sol_len);
+    }
+
+    return 0;
+}
 int main (int argc, char **argv)
 {
     unsigned long long perf;
@@ -112,16 +136,22 @@ int main (int argc, char **argv)
     /* mettre les travaux dans la file d'attente */
     generate_tsp_jobs (&q, 1, 0, path, &cuts, sol, & sol_len, 3);
     no_more_jobs (&q);
-   
-    /* calculer chacun des travaux */
-    tsp_path_t solution;
-    memset (solution, -1, MAX_TOWNS * sizeof (int));
-    solution[0] = 0;
-    while (!empty_queue (&q)) {
-        int hops = 0, len = 0;
-        get_job (&q, solution, &hops, &len);
-        tsp (hops, len, solution, &cuts, sol, &sol_len);
+
+    args_consumme_t args_consumme = {
+        &q,
+        &cuts,
+        &sol,
+        &sol_len
+    };
+    pthread_t *pthread_consumme = calloc(nb_threads, sizeof(*pthread_consumme));
+    for (int i = 0; i < nb_threads; i++) {
+        pthread_create( pthread_consumme + i, NULL, consumme_tsp_job_parallele,
+                &args_consumme);
     }
+    for (int i = 0; i < nb_threads; i++) {
+        pthread_join(pthread_consumme[i], NULL);
+    }
+
     
     clock_gettime (CLOCK_REALTIME, &t2);
 

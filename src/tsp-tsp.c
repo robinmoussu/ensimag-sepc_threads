@@ -1,15 +1,16 @@
 #include <assert.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "tsp-types.h"
 #include "tsp-genmap.h"
 #include "tsp-print.h"
 #include "tsp-tsp.h"
 
-/* dernier minimum trouvé */
+/* dernier minimum trouv? */
 int minimum;
 
-/* résolution du problème du voyageur de commerce */
+/* r?solution du probl?me du voyageur de commerce */
 int present (int city, int hops, tsp_path_t path)
 {
     for (int i = 0; i < hops; i++) {
@@ -25,18 +26,27 @@ int present (int city, int hops, tsp_path_t path)
 
 void tsp (int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len)
 {
+  static pthread_mutex_t mutex_sol = PTHREAD_MUTEX_INITIALIZER;
+  /*static pthread_mutex_t mutex_cuts = PTHREAD_MUTEX_INITIALIZER;*/
+
   if (len + cutprefix[(nb_towns-hops)] >= minimum) {
-      (*cuts)++ ;
+      /*pthread_mutex_lock(&mutex_cuts);*/
+      (*cuts)++ ; // Ã©trangement protÃ©ger cette variable rend le temps d'exÃ©cution extremement lent
+      /*pthread_mutex_unlock(&mutex_cuts);*/
       return;
     }
     
     if (hops == nb_towns) {
 	    int me = path [hops - 1];
 	    int dist = distance[me][0]; // retourner en 0
-            if ( len + dist < minimum ) {
+        if ( len + dist < minimum ) {
 		    minimum = len + dist;
-		    *sol_len = len + dist;
+
+            pthread_mutex_lock(&mutex_sol);
+		    *sol_len = minimum;
 		    memcpy(sol, path, nb_towns*sizeof(int));
+            pthread_mutex_unlock(&mutex_sol);
+
 		    print_solution (path, len+dist);
 	    }
     } else {
