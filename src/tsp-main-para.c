@@ -200,8 +200,8 @@ int main (int argc, char **argv)
         pthread_join(threads[i], NULL);
     }
 
-    
     clock_gettime (CLOCK_REALTIME, &t2);
+    free(threads);
 
     if (affiche_sol)
       print_solution_svg (sol, sol_len);
