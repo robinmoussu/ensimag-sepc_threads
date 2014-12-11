@@ -89,7 +89,7 @@ void * create_tsp_job_parallele(void *args)
     no_more_jobs (a->q);
 
     pthread_mutex_lock(&mutex_cuts);
-    a->cuts += cuts;
+    *(a->cuts) += cuts;
     pthread_mutex_unlock(&mutex_cuts);
 
     fprintf(stderr, "fin de thread\n");
@@ -124,7 +124,7 @@ void* consumme_tsp_job_parallele(void *args)
 
     // On met à jour le cuts global
     pthread_mutex_lock(&mutex_cuts);
-    a->cuts += cuts;
+    *(a->cuts) += cuts;
     pthread_mutex_unlock(&mutex_cuts);
 
     fprintf(stderr, "fin de thread\n");
