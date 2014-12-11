@@ -103,6 +103,7 @@ typedef struct {
 void* consumme_tsp_job_parallele(void *args)
 {
     args_consumme_t* a = args;
+    long long int cuts = 0; // On utilise une variable cuts par threads, et on reporte le total seulement à la fin
 
     /* calculer chacun des travaux */
     tsp_path_t solution;
@@ -110,18 +111,20 @@ void* consumme_tsp_job_parallele(void *args)
     solution[0] = 0;
     while (!empty_queue (a->q)) {
         int hops = 0, len = 0;
-        long long int cuts = 0; // On utilise une variable cuts par threads, et on reporte le total seulement à la fin
 
         get_job (a->q, solution, &hops, &len);
         tsp (hops, len, solution, &cuts, *(a->sol), a->sol_len);
 
-        pthread_mutex_lock(&mutex_cuts);
-        a->cuts += cuts;
-        pthread_mutex_unlock(&mutex_cuts);
     }
+
+    // On met à jour le cuts global
+    pthread_mutex_lock(&mutex_cuts);
+    a->cuts += cuts;
+    pthread_mutex_unlock(&mutex_cuts);
 
     return 0;
 }
+
 int main (int argc, char **argv)
 {
     unsigned long long perf;
