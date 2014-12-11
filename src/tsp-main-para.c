@@ -79,6 +79,8 @@ void * create_tsp_job_parallele(void *args)
     args_create_t *a = args;
     long long int cuts = 0; // On utilise une variable cuts par threads, et on reporte le total seulement à la fin
 
+    fprintf(stderr, "creation de thread\n");
+
     memset (*(a->path), -1, MAX_TOWNS * sizeof (int));
     *(a->path)[0] = 0;
 
@@ -90,6 +92,7 @@ void * create_tsp_job_parallele(void *args)
     a->cuts += cuts;
     pthread_mutex_unlock(&mutex_cuts);
 
+    fprintf(stderr, "fin de thread\n");
     return 0;
 }
 
@@ -104,6 +107,8 @@ void* consumme_tsp_job_parallele(void *args)
 {
     args_consumme_t* a = args;
     long long int cuts = 0; // On utilise une variable cuts par threads, et on reporte le total seulement à la fin
+
+    fprintf(stderr, "creation de thread\n");
 
     /* calculer chacun des travaux */
     tsp_path_t solution;
@@ -122,6 +127,7 @@ void* consumme_tsp_job_parallele(void *args)
     a->cuts += cuts;
     pthread_mutex_unlock(&mutex_cuts);
 
+    fprintf(stderr, "fin de thread\n");
     return 0;
 }
 
