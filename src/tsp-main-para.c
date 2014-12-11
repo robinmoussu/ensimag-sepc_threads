@@ -37,6 +37,7 @@ int nb_threads=1;
 /* affichage SVG */
 bool affiche_sol= false;
 
+static pthread_mutex_t mutex_cuts = PTHREAD_MUTEX_INITIALIZER;
 
 static void generate_tsp_jobs (struct tsp_queue *q, int hops, int len, tsp_path_t path, long long int *cuts, tsp_path_t sol, int *sol_len, int depth)
 {
@@ -66,6 +67,33 @@ static void usage(const char *name) {
 }
 
 typedef struct {
+    tsp_path_t *path;
+    struct tsp_queue *q;
+    long long int *cuts;
+    tsp_path_t *sol;
+    int *sol_len;
+} args_create_t;
+
+void * create_tsp_job_parallele(void *args)
+{
+    args_create_t *a = args;
+    long long int cuts = 0; // On utilise une variable cuts par threads, et on reporte le total seulement à la fin
+
+    memset (*(a->path), -1, MAX_TOWNS * sizeof (int));
+    *(a->path)[0] = 0;
+
+    /* mettre les travaux dans la file d'attente */
+    generate_tsp_jobs (a->q, 1, 0, *(a->path), &cuts, *(a->sol), a->sol_len, 3);
+    no_more_jobs (a->q);
+
+    pthread_mutex_lock(&mutex_cuts);
+    a->cuts += cuts;
+    pthread_mutex_unlock(&mutex_cuts);
+
+    return 0;
+}
+
+typedef struct {
     struct tsp_queue *q;
     long long int *cuts;
     tsp_path_t *sol;
@@ -74,7 +102,6 @@ typedef struct {
 
 void* consumme_tsp_job_parallele(void *args)
 {
-    static pthread_mutex_t mutex_cuts = PTHREAD_MUTEX_INITIALIZER;
     args_consumme_t* a = args;
 
     /* calculer chacun des travaux */
@@ -135,28 +162,39 @@ int main (int argc, char **argv)
 
     init_queue (&q);
 
+    pthread_t *threads = calloc(nb_threads, sizeof(*threads));
+    int thread_creation = 0;
+
     clock_gettime (CLOCK_REALTIME, &t1);
-
-    memset (path, -1, MAX_TOWNS * sizeof (int));
-    path[0] = 0;
-
-    /* mettre les travaux dans la file d'attente */
-    generate_tsp_jobs (&q, 1, 0, path, &cuts, sol, & sol_len, 3);
-    no_more_jobs (&q);
-
+    args_create_t args_create = {
+        &path,
+        &q,
+        &cuts,
+        &sol,
+        &sol_len,
+    };
+    // Le premier thread est réservé pour la creation des jobs
+    pthread_create( threads + thread_creation, NULL, create_tsp_job_parallele, &args_create);
+    
     args_consumme_t args_consumme = {
         &q,
         &cuts,
         &sol,
         &sol_len
     };
-    pthread_t *pthread_consumme = calloc(nb_threads, sizeof(*pthread_consumme));
-    for (int i = 0; i < nb_threads; i++) {
-        pthread_create( pthread_consumme + i, NULL, consumme_tsp_job_parallele,
+    // Le premier thread est réservé pour la creation des jobs
+    for (int i = 1; i < nb_threads; i++) {
+        pthread_create( threads + i, NULL, consumme_tsp_job_parallele,
                 &args_consumme);
     }
+
+    // On transforme le thread de creation en thread de consommation quand il a fini de produire
+    pthread_join(threads[thread_creation], NULL);
+    pthread_create( threads + thread_creation, NULL, consumme_tsp_job_parallele, &args_consumme);
+
+    // On attend la fine du programme
     for (int i = 0; i < nb_threads; i++) {
-        pthread_join(pthread_consumme[i], NULL);
+        pthread_join(threads[i], NULL);
     }
 
     
