@@ -66,6 +66,10 @@ int get_job (struct tsp_queue *q, tsp_path_t p, int *hops, int *len) {
 
    pthread_mutex_lock(& mutex_jobs);
    while (q->first == 0) {
+       if (q->end == 1) {
+           pthread_mutex_unlock(& mutex_jobs);
+           return 0;
+       };
        pthread_cond_wait (& cond_consommation, & mutex_jobs);
    }
 
@@ -91,6 +95,7 @@ int get_job (struct tsp_queue *q, tsp_path_t p, int *hops, int *len) {
 
 void no_more_jobs (struct tsp_queue *q) {
     q->end = 1;
+    pthread_cond_broadcast (& cond_consommation);
 }
 
 
